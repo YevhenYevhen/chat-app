@@ -1,0 +1,7 @@
+<div>
+  <p *ngFor="let message of messages">{{ message }}</p>
+  <form #form="ngForm" (ngSubmit)="onSubmit(form.value)">
+    <input ngModel type="text" name="message" required />
+    <button [disabled]="!form.valid" type="submit">Send message</button>
+  </form>
+</div>
