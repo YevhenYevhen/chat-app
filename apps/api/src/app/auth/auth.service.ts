@@ -1,9 +1,11 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcryptjs';
 import { LoggedInUserDto } from '../user/dto/logged-in-user.dto';
 import { User } from '../user/user.schema';
 import { JwtService } from '@nestjs/jwt';
+import { WrongCredentialsException } from './errors/wrong-credentials.exception';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -15,30 +17,10 @@ export class AuthService {
   public async login({
     username,
     password,
-  }: {
-    username: string;
-    password: string;
-  }): Promise<LoggedInUserDto> {
-    const { password: hashedPassword, id } = await this.userService.findOneBy({
-      username,
-    });
-
-    this.validatePassword(password, hashedPassword);
+  }: LoginDto): Promise<LoggedInUserDto> {
+    const { id } = await this.validateUser(username, password);
 
     return { id, username, token: this.createToken(id) };
-  }
-
-  private validatePassword(decoded: string, encoded: string): void {
-    if (!bcrypt.compareSync(decoded, encoded)) {
-      throw new HttpException(
-        'Username or password is not valid',
-        HttpStatus.FORBIDDEN
-      );
-    }
-  }
-
-  private createToken(id: string): string {
-    return this.jwtService.sign({ id });
   }
 
   public async validateUser(username: string, password: string): Promise<User> {
@@ -47,5 +29,15 @@ export class AuthService {
     this.validatePassword(password, user.password);
 
     return user;
+  }
+
+  private validatePassword(decoded: string, encoded: string): void {
+    if (!bcrypt.compareSync(decoded, encoded)) {
+      throw new WrongCredentialsException();
+    }
+  }
+
+  private createToken(id: string): string {
+    return this.jwtService.sign({ id });
   }
 }

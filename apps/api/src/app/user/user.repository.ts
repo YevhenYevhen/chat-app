@@ -14,6 +14,6 @@ export class UserRepository {
   }
 
   async findOneBy(options: Partial<User>): Promise<User> {
-    return  this.userModel.findOne(options).exec();
+    return this.userModel.findOne(options).exec();
   }
 }
