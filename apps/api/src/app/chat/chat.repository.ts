@@ -14,9 +14,9 @@ export class ChatRepository {
     return this.messageModel.create(dto);
   }
 
-  public getMessageWithUserById(id: string): Promise<Message> {
+  public async getMessageWithUserById(id: string): Promise<Message> {
     return this.messageModel
-      .findOne({ _id: id })
+      .findById(id)
       .populate('user', ['username', 'id'])
       .exec();
   }

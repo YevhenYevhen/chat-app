@@ -2,6 +2,8 @@
   <div *ngFor="let message of messages">
     <p>{{ message.user.username }}</p>
     <p>{{ message.messageText }}</p>
+    <button type="button" (click)="mute(message.user.id)">Mute</button>
+    <button type="button" (click)="unmute(message.user.id)">Unmute</button>
   </div>
   <form #form="ngForm" (ngSubmit)="onSubmit(form.value)">
     <input ngModel type="text" name="message" required />

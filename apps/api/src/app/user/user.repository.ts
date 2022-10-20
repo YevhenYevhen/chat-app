@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './user.schema';
@@ -14,6 +14,19 @@ export class UserRepository {
   }
 
   async findOneBy(options: Partial<User>): Promise<User> {
-    return this.userModel.findOne(options).exec();
+    let searchOptions = options as FilterQuery<UserDocument>;
+
+    if ('id' in options) {
+      searchOptions = { _id: searchOptions.id };
+    }
+    return this.userModel.findOne(searchOptions).exec();
+  }
+
+  async mute(id: string): Promise<void> {
+    await this.userModel.updateOne({ _id: id }, { muted: true });
+  }
+
+  async unmute(id: string): Promise<void> {
+    await this.userModel.updateOne({ _id: id }, { muted: false });
   }
 }

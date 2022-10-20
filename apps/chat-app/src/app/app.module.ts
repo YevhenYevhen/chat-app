@@ -13,7 +13,7 @@ const config: SocketIoConfig = {
     transports: ['websocket', 'polling'],
     query: {
       token:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzNGVjZmQxNmJhMTM2MjFiNjU2NGFiNiIsImlhdCI6MTY2NjE5NTQwMywiZXhwIjoxNjY2MjgxODAzfQ._m6cfK0WWkc01rWjXycDIm3BTiNIary_d3PIgDCW7Rc',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzNTE0ZWFiZGE5ZWZlMWI2NmVkNmU2ZiIsImlhdCI6MTY2NjI3MzIzMCwiZXhwIjoxNjY2MzU5NjMwfQ.njOOxAzTBJp8v4sZzTIhAcxiRlKMchX1vqRv0VkR7tQ',
     },
   },
 };

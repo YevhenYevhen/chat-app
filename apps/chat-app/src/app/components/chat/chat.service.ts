@@ -15,4 +15,20 @@ export class ChatService {
   public getNewMessage(): Observable<IMessage> {
     return this.socket.fromEvent<IMessage>('newMessage');
   }
+
+  public mute(id: string): void {
+    this.socket.emit('muteUser', id);
+  }
+
+  public userMuted(): Observable<void> {
+    return this.socket.fromEvent<void>('userMuted');
+  }
+
+  public unmute(id: string): void {
+    this.socket.emit('unmuteUser', id);
+  }
+
+  public userUnmuted(): Observable<void> {
+    return this.socket.fromEvent<void>('userUnmuted');
+  }
 }

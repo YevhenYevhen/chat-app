@@ -21,4 +21,12 @@ export class UserService {
     const hashedPassword = await bcrypt.hashSync(password, 10);
     return this.userRepo.create({ username, password: hashedPassword });
   }
+
+  public async mute(id: string): Promise<void> {
+    await this.userRepo.mute(id);
+  }
+
+  public async unmute(id: string): Promise<void> {
+    await this.userRepo.unmute(id);
+  }
 }

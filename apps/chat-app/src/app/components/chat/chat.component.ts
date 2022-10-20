@@ -18,9 +18,23 @@ export class ChatComponent implements OnInit {
     this.chatService.getNewMessage().subscribe((m) => {
       this.messages.push(m);
     });
+    this.chatService
+      .userMuted()
+      .subscribe((id) => console.log('user muted', id));
+    this.chatService
+      .userUnmuted()
+      .subscribe((id) => console.log('user unmuted', id));
   }
 
   public onSubmit({ message }: { message: string }): void {
     this.chatService.sendMessage(message);
+  }
+
+  public mute(id: string): void {
+    this.chatService.mute(id);
+  }
+
+  public unmute(id: string): void {
+    this.chatService.unmute(id);
   }
 }

@@ -15,6 +15,8 @@ import { ChatService } from '../chat.service';
 import { hasUser } from '../typeguards/has-user.type-guard';
 import { NewMessageDto } from '../dto/new-message.dto';
 import { WsValidationPipe } from '../pipes/ws-validation.pipe';
+import { Message, MessageDocument } from '../message.schema';
+import { MessageWithUserDto } from '../dto/message-with-user.dto';
 
 @WebSocketGateway({ cors: true })
 @UseGuards(WsAuthGuard)
@@ -36,19 +38,36 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   public async handleMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody(new WsValidationPipe({ transform: true }))
-    { message }: NewMessageDto
+    { message: messageText }: NewMessageDto
   ): Promise<void> {
     if (hasUser(client.handshake)) {
       const userId = client.handshake.user.id;
 
       const { id: messageId } = await this.chatService.createMessage({
-        messageText: message,
+        messageText,
         user: userId,
       });
 
-      const messageWithUser = await this.chatService.getMessageWithUserById(messageId);
+      this.server.emit('userMuted', userId);
+      setTimeout(() => this.server.emit('userUnmuted', userId), 15000);
 
-      this.server.emit('newMessage', messageWithUser);
+      const messageWithUser = await this.chatService.getMessageWithUserById(
+        messageId
+      );
+
+      this.server.emit('newMessage', this.normalizeMessage(messageWithUser));
     }
+  }
+
+  private normalizeMessage(messageObj: Message): MessageWithUserDto {
+    const { user, ...message } = (messageObj as MessageDocument).toObject();
+
+    return {
+      messageText: message.messageText,
+      id: message._id.toString(),
+      createdAt: message.createdAt,
+      updatedAt: message.updatedAt,
+      user: { username: user.username, id: user._id.toString() },
+    };
   }
 }
