@@ -6,5 +6,5 @@ export class SaveMessageDto {
   messageText: string;
 
   @IsString()
-  userId: string;
+  user: string;
 }

@@ -1,14 +1,20 @@
 import {
+  BaseWsExceptionFilter,
+  ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { UseGuards } from '@nestjs/common';
+import { UseFilters, UseGuards } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { WsAuthGuard } from '../../auth/guards/ws-auth.guard';
 import { ChatService } from '../chat.service';
+import { hasUser } from '../typeguards/has-user.type-guard';
+import { NewMessageDto } from '../dto/new-message.dto';
+import { WsValidationPipe } from '../pipes/ws-validation.pipe';
 
 @WebSocketGateway({ cors: true })
 @UseGuards(WsAuthGuard)
@@ -25,20 +31,24 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log('disconnected');
   }
 
+  @UseFilters(new BaseWsExceptionFilter())
   @SubscribeMessage('sendMessage')
-  public handleMessage(socket: Socket, message: string): void {
-    if (hasUser(socket.handshake)) {
-      const userId = socket.handshake.user.id;
-      const createdMessage = this.chatService.saveMessage({
+  public async handleMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody(new WsValidationPipe({ transform: true }))
+    { message }: NewMessageDto
+  ): Promise<void> {
+    if (hasUser(client.handshake)) {
+      const userId = client.handshake.user.id;
+
+      const { id: messageId } = await this.chatService.createMessage({
         messageText: message,
-        userId,
+        user: userId,
       });
-        
-      this.server.emit('newMessage', createdMessage);
+
+      const messageWithUser = await this.chatService.getMessageWithUserById(messageId);
+
+      this.server.emit('newMessage', messageWithUser);
     }
   }
-}
-
-function hasUser(arg: unknown): arg is { user: { id: string } } {
-  return Object.prototype.hasOwnProperty.call(arg, 'user');
 }

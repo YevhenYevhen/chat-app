@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
+import { IMessage } from '../../models/message.model';
 import { ChatService } from './chat.service';
 
 @Component({
@@ -9,7 +10,7 @@ import { ChatService } from './chat.service';
 })
 export class ChatComponent implements OnInit {
   private newMessage$!: Observable<string>;
-  public messages: string[] = [];
+  public messages: IMessage[] = [];
 
   constructor(private readonly chatService: ChatService) {}
 

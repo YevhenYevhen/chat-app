@@ -4,7 +4,7 @@ import { User } from '../user/user.schema';
 
 export type MessageDocument = Message & mongoose.Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Message {
   _id: mongoose.Schema.Types.ObjectId;
 
@@ -12,14 +12,11 @@ export class Message {
     return this._id.toString();
   }
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  userId: string;
-
   @Prop()
   messageText: string;
 
-  @Prop()
-  date: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  user: User;
 }
 
 export const MessageSchema = SchemaFactory.createForClass(Message);

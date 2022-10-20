@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { ChatRepository } from './chat.repository';
 import { SaveMessageDto } from './dto/save-message.dto';
-import { Message, MessageDocument } from './message.schema';
+import { Message } from './message.schema';
 
 @Injectable()
 export class ChatService {
-  constructor(
-    @InjectModel(Message.name) private messageModel: Model<MessageDocument>
-  ) {}
+  constructor(private readonly chatRepo: ChatRepository) {}
 
-  public saveMessage(dto: SaveMessageDto): Promise<Message> {
-    return this.messageModel.create({ ...dto, date: new Date().toISOString() });
+  public createMessage(dto: SaveMessageDto): Promise<Message> {
+    return this.chatRepo.create(dto);
+  }
+
+  public getMessageWithUserById(id: string): Promise<Message> {
+    return this.chatRepo.getMessageWithUserById(id);
   }
 }
