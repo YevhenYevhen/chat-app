@@ -6,6 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { ChatModule } from './components/chat/chat.module';
 import { AppRoutingModule } from './app-routing.module';
+import { RouterModule } from '@angular/router';
 
 const config: SocketIoConfig = {
   url: 'http://localhost:3333',
@@ -13,7 +14,7 @@ const config: SocketIoConfig = {
     transports: ['websocket', 'polling'],
     query: {
       token:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzNTE0ZWFiZGE5ZWZlMWI2NmVkNmU2ZiIsImlhdCI6MTY2NjI3MzIzMCwiZXhwIjoxNjY2MzU5NjMwfQ.njOOxAzTBJp8v4sZzTIhAcxiRlKMchX1vqRv0VkR7tQ',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzNTI3ZGI1YWFkMjg2ZmNmODFjMWY1ZiIsImlhdCI6MTY2NjM1NjEyOSwiZXhwIjoxNjY2NDQyNTI5fQ.U4YVdSTEhmDruiDm5NEWbAHOZjr1hCsbeUFkc_QbASw',
     },
   },
 };
@@ -24,6 +25,7 @@ const config: SocketIoConfig = {
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
+    RouterModule,
     SocketIoModule.forRoot(config),
     ChatModule,
   ],

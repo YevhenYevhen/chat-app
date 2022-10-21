@@ -12,25 +12,43 @@ import { UseFilters, UseGuards } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { WsAuthGuard } from '../../auth/guards/ws-auth.guard';
 import { ChatService } from '../chat.service';
-import { hasUser } from '../typeguards/has-user.type-guard';
+import { hasUser } from '../../shared/typeguards/has-user.type-guard';
 import { NewMessageDto } from '../dto/new-message.dto';
-import { WsValidationPipe } from '../pipes/ws-validation.pipe';
-import { Message, MessageDocument } from '../message.schema';
-import { MessageWithUserDto } from '../dto/message-with-user.dto';
+import { WsValidationPipe } from '../../shared/pipes/ws-validation.pipe';
+import { JwtService } from '@nestjs/jwt';
+import { hasId } from '../../shared/typeguards/has-id.type-guard';
 
 @WebSocketGateway({ cors: true })
 @UseGuards(WsAuthGuard)
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  constructor(private readonly chatService: ChatService) {}
+  private sockets: Socket[] = [];
+  constructor(
+    private readonly chatService: ChatService,
+    private readonly jwtService: JwtService
+  ) {}
   @WebSocketServer()
   private server: Server;
 
-  handleConnection() {
-    console.log('connected');
+  handleConnection(@ConnectedSocket() client: Socket) {
+    this.sockets.forEach((s) => {
+      const savedToken = s.handshake.query.token as string;
+      const currentUserToken = client.handshake.query.token as string;
+
+      const savedId = this.getId(this.jwtService.decode(savedToken));
+      const currentUserId = this.getId(
+        this.jwtService.decode(currentUserToken)
+      );
+
+      if (savedId && currentUserId && savedId === currentUserId) {
+        s.disconnect();
+      }
+    });
+
+    this.sockets.push(client);
   }
 
-  handleDisconnect() {
-    console.log('disconnected');
+  handleDisconnect(@ConnectedSocket() client: Socket) {
+    this.sockets = this.sockets.filter((c) => c.id !== client.id);
   }
 
   @UseFilters(new BaseWsExceptionFilter())
@@ -55,19 +73,21 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         messageId
       );
 
-      this.server.emit('newMessage', this.normalizeMessage(messageWithUser));
+      this.server.emit('newMessage', messageWithUser);
     }
   }
 
-  private normalizeMessage(messageObj: Message): MessageWithUserDto {
-    const { user, ...message } = (messageObj as MessageDocument).toObject();
+  @UseFilters(new BaseWsExceptionFilter())
+  @SubscribeMessage('getAllMessages')
+  public async getAllMessages(): Promise<void> {
+    const allMessages = await this.chatService.getAllMessages();
 
-    return {
-      messageText: message.messageText,
-      id: message._id.toString(),
-      createdAt: message.createdAt,
-      updatedAt: message.updatedAt,
-      user: { username: user.username, id: user._id.toString() },
-    };
+    this.server.emit('allMessages', allMessages);
+  }
+
+  private getId(obj: unknown): string | null {
+    if (!hasId(obj)) return null;
+
+    return obj.id;
   }
 }

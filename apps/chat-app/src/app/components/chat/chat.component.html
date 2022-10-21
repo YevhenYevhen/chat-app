@@ -4,7 +4,8 @@
     <p>{{ message.messageText }}</p>
     <button type="button" (click)="mute(message.user.id)">Mute</button>
     <button type="button" (click)="unmute(message.user.id)">Unmute</button>
-  </div>
+    <button type="button" (click)="ban(message.user.id)">Ban</button>
+    <button type="button" (click)="unban(message.user.id)">Unban</button>  </div>
   <form #form="ngForm" (ngSubmit)="onSubmit(form.value)">
     <input ngModel type="text" name="message" required />
     <button [disabled]="!form.valid" type="submit">Send message</button>

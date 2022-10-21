@@ -20,3 +20,13 @@ export class Message {
 }
 
 export const MessageSchema = SchemaFactory.createForClass(Message);
+
+MessageSchema.methods.toJSON = function () {
+  return {
+    id: this._id.toString(),
+    messageText: this.messageText,
+    createdAt: this.createdAt,
+    updatedAt: this.updatedAt,
+    user: this.user
+  };
+};

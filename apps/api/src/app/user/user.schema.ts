@@ -1,5 +1,6 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
+import { Roles } from './roles.enum';
 
 export type UserDocument = User & mongoose.Document;
 
@@ -22,7 +23,19 @@ export class User {
 
   @Prop({ default: false })
   banned: boolean;
+
+  @Prop({ default: Roles.User })
+  role: string;
 }
 
-
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.methods.toJSON = function () {
+  return {
+    id: this._id.toString(),
+    username: this.username,
+    banned: this.banned,
+    muted: this.muted,
+    role: this.role,
+  };
+};

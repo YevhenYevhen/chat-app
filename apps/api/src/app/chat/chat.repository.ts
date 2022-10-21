@@ -15,9 +15,21 @@ export class ChatRepository {
   }
 
   public async getMessageWithUserById(id: string): Promise<Message> {
-    return this.messageModel
-      .findById(id)
-      .populate('user', ['username', 'id'])
-      .exec();
+    return (
+      await this.messageModel
+        .findById(id)
+        .populate('user', ['username', 'id'])
+        .exec()
+    ).toJSON() as Message;
+  }
+
+  public findAll(): Promise<MessageDocument[]> {
+    return (
+      this.messageModel
+        .find({}, { __v: 0 })
+        .populate('user', ['username', 'id'])
+        .sort({ date: -1 })
+        .exec()
+    );
   }
 }

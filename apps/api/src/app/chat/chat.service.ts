@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UserRepository } from '../user/user.repository';
 import { ChatRepository } from './chat.repository';
 import { SaveMessageDto } from './dto/save-message.dto';
+import { UserIsBannedException } from './errors/user-is-banned.exception';
 import { UserIsMutedException } from './errors/user-is-muted.exception';
 import { Message } from './message.schema';
 
@@ -16,6 +17,7 @@ export class ChatService {
     const user = await this.userRepo.findOneBy({ id: dto.user });
 
     if (user.muted) throw new UserIsMutedException();
+    if (user.banned) throw new UserIsBannedException();
 
     this.handleMuteAfterMessageSent(dto.user);
 
@@ -26,9 +28,13 @@ export class ChatService {
     return this.chatRepo.getMessageWithUserById(id);
   }
 
-  private handleMuteAfterMessageSent(id: string): void {
-    this.userRepo.mute(id);
+  public getAllMessages(): Promise<Message[]> {
+    return this.chatRepo.findAll();
+  }
 
-    setTimeout(() => this.userRepo.unmute(id), 15000);
+  private handleMuteAfterMessageSent(id: string): void {
+    this.userRepo.update(id, { muted: true });
+
+    setTimeout(() => this.userRepo.update(id, { muted: false }), 15000);
   }
 }
