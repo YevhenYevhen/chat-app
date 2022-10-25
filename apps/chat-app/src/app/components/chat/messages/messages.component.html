@@ -1,0 +1,38 @@
+<div class="container">
+  <div class="messages" pinScroll>
+    <div
+      *ngFor="let message of messsages$ | async"
+      [ngClass]="
+        authUser?.id === message.user.id ? 'own-message message' : 'message'
+      "
+      #message
+    >
+      <p class="username">{{ message.user.username }}</p>
+      <p>{{ message.messageText }}</p>
+      <div class="date">
+        {{ message.createdAt | date }}
+        {{ message.createdAt | date:'h:mm'}}
+      </div>
+    </div>
+  </div>
+
+  <form
+    [formGroup]="messageForm"
+    (ngSubmit)="onSubmit()"
+    #form="ngForm"
+    class="message-form"
+  >
+    <mat-form-field appearance="fill" class="message-textarea">
+      <textarea
+        name="message"
+        required
+        matInput
+        placeholder="Type a message..."
+        formControlName="messageText"
+      ></textarea>
+      <button [disabled]="!form.valid" type="submit">
+        <mat-icon>send</mat-icon>
+      </button>
+    </mat-form-field>
+  </form>
+</div>

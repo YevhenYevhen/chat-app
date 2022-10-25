@@ -13,7 +13,7 @@ export class UserService {
 
   public async findOneBy(options: Partial<User>): Promise<User> {
     const user = (await this.userRepo.findOneBy(options)) as UserDocument;
-    return user.toJSON() as User;
+    if (user) return user.toJSON() as User;
   }
 
   public findOneByWithPassword(options: Partial<User>): Promise<User> {

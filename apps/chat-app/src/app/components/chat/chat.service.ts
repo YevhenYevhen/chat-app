@@ -1,20 +1,19 @@
 import { Injectable } from '@angular/core';
-import { Socket } from 'ngx-socket-io';
 import { Observable } from 'rxjs';
-import { IMessage } from '../../models/message.model';
+import { SocketWithToken } from '../../shared/socket-with-token';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ChatService {
-  constructor(private socket: Socket) {}
-  public sendMessage(message: string): void {
-    this.socket.emit('sendMessage', { message });
-  }
+  constructor(private socket: SocketWithToken) {}
+  // public sendMessage(message: string): void {
+  //   this.socket.emit('sendMessage', { message });
+  // }
 
-  public getNewMessage(): Observable<IMessage> {
-    return this.socket.fromEvent<IMessage>('newMessage');
-  }
+  // public getNewMessage(): Observable<IMessage> {
+  //   return this.socket.fromEvent<IMessage>('newMessage');
+  // }
 
   public mute(id: string): void {
     this.socket.emit('muteUser', id);
@@ -62,8 +61,8 @@ export class ChatService {
     return this.socket.fromEvent<unknown>('allUsers');
   }
 
-  public getAllMessages(): Observable<unknown> {
-    this.socket.emit('getAllMessages');
-    return this.socket.fromEvent<unknown>('allMessages');
-  }
+  // public getAllMessages(): Observable<unknown> {
+  //   this.socket.emit('getAllMessages');
+  //   return this.socket.fromEvent<unknown>('allMessages');
+  // }
 }

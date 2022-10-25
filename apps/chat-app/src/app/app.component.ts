@@ -1,13 +1,15 @@
-import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Message } from '@chat-app/api-interfaces';
+import { Component, OnInit } from '@angular/core';
+import { AuthService } from './components/auth/auth.service';
 
 @Component({
   selector: 'chat-app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent {
-  hello$ = this.http.get<Message>('/api/hello');
-  constructor(private http: HttpClient) {}
+export class AppComponent implements OnInit {
+  constructor(private authService: AuthService) {}
+
+  ngOnInit(): void {
+    this.authService.autoLogin();
+  }
 }

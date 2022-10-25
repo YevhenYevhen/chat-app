@@ -7,15 +7,15 @@ import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { ChatModule } from './components/chat/chat.module';
 import { AppRoutingModule } from './app-routing.module';
 import { RouterModule } from '@angular/router';
+import { MatModule } from './shared/mat.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { AuthModule } from './components/auth/auth.module';
 
 const config: SocketIoConfig = {
   url: 'http://localhost:3333',
   options: {
     transports: ['websocket', 'polling'],
-    query: {
-      token:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzNTI3ZGI1YWFkMjg2ZmNmODFjMWY1ZiIsImlhdCI6MTY2NjM1NjEyOSwiZXhwIjoxNjY2NDQyNTI5fQ.U4YVdSTEhmDruiDm5NEWbAHOZjr1hCsbeUFkc_QbASw',
-    },
+    autoConnect: false
   },
 };
 
@@ -23,11 +23,14 @@ const config: SocketIoConfig = {
   declarations: [AppComponent],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     HttpClientModule,
     AppRoutingModule,
     RouterModule,
     SocketIoModule.forRoot(config),
     ChatModule,
+    MatModule,
+    AuthModule,
   ],
   providers: [],
   bootstrap: [AppComponent],
