@@ -3,8 +3,10 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { takeUntil } from 'rxjs';
 import { UiComponent } from '../../../abstract/ui-component/ui-component.component';
 import { MessagesStore } from '../../../store/messages.store';
-import { UserStore } from '../../../store/user.store';
+import { AuthUserStore } from '../../../store/auth-user.store';
 import { MessagesService } from './messages.service';
+import { UsersStore } from '../../../store/users.store';
+import { IUser } from '../../../models/user.model';
 
 @Component({
   selector: 'chat-app-messages',
@@ -14,13 +16,15 @@ import { MessagesService } from './messages.service';
 })
 export class MessagesComponent extends UiComponent implements OnInit {
   public messsages$ = this.messagesStore.messages$;
-  public authUser = this.userStore.user$.getValue();
+  public users!: IUser[];
+  public authUser = this.authUserStore.authUser$.getValue();
   public messageForm!: FormGroup;
 
   constructor(
     private messagesService: MessagesService,
     private messagesStore: MessagesStore,
-    private userStore: UserStore,
+    private authUserStore: AuthUserStore,
+    private usersStore: UsersStore,
     private fb: FormBuilder
   ) {
     super();
@@ -29,6 +33,8 @@ export class MessagesComponent extends UiComponent implements OnInit {
   ngOnInit(): void {
     this.getAllMessages();
     this.subscribeToNewMessages();
+
+    this.usersStore.users$.pipe(takeUntil(this.notifier$)).subscribe((users) => (this.users = users));
 
     this.messageForm = this.fb.group({
       messageText: ['', [Validators.required, Validators.maxLength(200)]],
@@ -58,5 +64,9 @@ export class MessagesComponent extends UiComponent implements OnInit {
     this.messagesStore.messages$.next(
       await this.messagesService.getAllMessages()
     );
+  }
+
+  public getColor(id: string): string {
+    return this.users.find((u) => u.id === id)?.color || 'black';
   }
 }

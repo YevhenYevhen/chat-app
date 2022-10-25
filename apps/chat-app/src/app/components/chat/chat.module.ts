@@ -9,10 +9,23 @@ import { MessagesComponent } from './messages/messages.component';
 import { MessagesService } from './messages/messages.service';
 import { MessagesStore } from '../../store/messages.store';
 import { ScrollDirective } from '../../directives/scroll.directive';
+import { UsersComponent } from './users/users.component';
+import { UsersService } from './users/users.service';
 
 @NgModule({
-  declarations: [ChatComponent, MessagesComponent, ScrollDirective],
+  declarations: [
+    ChatComponent,
+    MessagesComponent,
+    ScrollDirective,
+    UsersComponent,
+  ],
   imports: [CommonModule, FormsModule, MatModule, ReactiveFormsModule],
-  providers: [ChatService, MessagesService, SocketWithToken, MessagesStore],
+  providers: [
+    ChatService,
+    UsersService,
+    MessagesService,
+    SocketWithToken,
+    MessagesStore,
+  ],
 })
 export class ChatModule {}

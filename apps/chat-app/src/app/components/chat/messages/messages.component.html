@@ -2,6 +2,7 @@
   <div class="messages" pinScroll>
     <div
       *ngFor="let message of messsages$ | async"
+      [ngStyle]="{ 'background-color': getColor(message.user.id)}"
       [ngClass]="
         authUser?.id === message.user.id ? 'own-message message' : 'message'
       "
@@ -11,7 +12,7 @@
       <p>{{ message.messageText }}</p>
       <div class="date">
         {{ message.createdAt | date }}
-        {{ message.createdAt | date:'h:mm'}}
+        {{ message.createdAt | date: 'h:mm' }}
       </div>
     </div>
   </div>

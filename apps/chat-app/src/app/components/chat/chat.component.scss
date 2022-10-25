@@ -1,0 +1,10 @@
+.container {
+  display: flex;
+  width: 100wh;
+  .users {
+    flex: 1 1 20%;
+  }
+  .messages {
+    flex: 2 1 80%;
+  }
+}

@@ -46,12 +46,16 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
 
     this.sockets.push(client);
+
     this.getOnlineUsers();
+    this.getAllUsers();
   }
 
   handleDisconnect(@ConnectedSocket() client: Socket) {
     this.sockets = this.sockets.filter((c) => c.id !== client.id);
+
     this.getOnlineUsers();
+    this.getAllUsers();
   }
 
   @SubscribeMessage('muteUser')
@@ -59,7 +63,7 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
   public async muteUser(@MessageBody() id: string): Promise<void> {
     await this.userService.update(id, { muted: true });
 
-    this.server.emit('userMuted');
+    this.server.emit('userMuted', id);
   }
 
   @SubscribeMessage('unmuteUser')
@@ -67,7 +71,7 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
   public async unmuteUser(@MessageBody() id: string): Promise<void> {
     await this.userService.update(id, { muted: false });
 
-    this.server.emit('userUnmuted');
+    this.server.emit('userUnmuted', id);
   }
 
   @SubscribeMessage('banUser')
@@ -75,7 +79,7 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
   public async banUser(@MessageBody() id: string): Promise<void> {
     await this.userService.update(id, { banned: true });
 
-    this.server.emit('userBanned');
+    this.server.emit('userBanned', id);
   }
 
   @SubscribeMessage('unbanUser')
@@ -83,7 +87,7 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
   public async unbanUser(@MessageBody() id: string): Promise<void> {
     await this.userService.update(id, { banned: false });
 
-    this.server.emit('userUnbanned');
+    this.server.emit('userUnbanned', id);
   }
 
   @SubscribeMessage('getOnlineUsers')
