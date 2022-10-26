@@ -1,6 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+} from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { UiComponent } from '../../abstract/ui-component/ui-component.component';
 import { ChatService } from './chat.service';
 
@@ -10,6 +13,7 @@ import { ChatService } from './chat.service';
   styleUrls: ['./chat.component.scss'],
 })
 export class ChatComponent extends UiComponent implements OnInit {
+  public closeDrawer$ = new Subject<void>();
   constructor(private chatService: ChatService, private snackBar: MatSnackBar) {
     super();
   }
@@ -21,5 +25,9 @@ export class ChatComponent extends UiComponent implements OnInit {
       .subscribe((exception) =>
         this.snackBar.open(exception.message, undefined, { duration: 3000 })
       );
+  }
+
+  public closeDrawer(): void {
+    this.closeDrawer$.next();
   }
 }

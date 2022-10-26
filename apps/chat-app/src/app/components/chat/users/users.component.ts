@@ -1,9 +1,14 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
+  Input,
   OnDestroy,
   OnInit,
+  ViewChild,
 } from '@angular/core';
+import { MatSidenav } from '@angular/material/sidenav';
+import { Subject, takeUntil } from 'rxjs';
 import { UiComponent } from '../../../abstract/ui-component/ui-component.component';
 import { AuthUserStore } from '../../../store/auth-user.store';
 import { UsersStore } from '../../../store/users.store';
@@ -18,15 +23,18 @@ import { UsersService } from './users.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UsersComponent extends UiComponent implements OnInit, OnDestroy {
-  public isAdmin = this.authUserStore.authUser$?.getValue()!.role === 'admin';
+  public isAdmin = this.authUserStore.authUser$?.getValue()?.role === 'admin';
   public users$ = this.usersStore.users$;
+  @ViewChild('drawer') public drawer!: MatSidenav;
+  @Input() closeDrawer$!: Subject<void>;
 
   constructor(
     public authUserStore: AuthUserStore,
     private usersStore: UsersStore,
     private usersService: UsersService,
     private usersSubscriptions: UsersSubscriptionsService,
-    private colorsService: ColorsService
+    private colorsService: ColorsService,
+    private cdRef: ChangeDetectorRef
   ) {
     super();
   }
@@ -34,6 +42,10 @@ export class UsersComponent extends UiComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadUsers();
     this.usersSubscriptions.subscribe(this.notifier$);
+    this.closeDrawer$.pipe(takeUntil(this.notifier$)).subscribe(() => {
+      this.drawer.close();
+      this.cdRef.markForCheck();
+    });
   }
 
   public override ngOnDestroy(): void {
@@ -42,7 +54,7 @@ export class UsersComponent extends UiComponent implements OnInit, OnDestroy {
   }
 
   private async loadUsers(): Promise<void> {
-    let users = this.isAdmin
+    const users = this.isAdmin
       ? await this.usersService.getAllUsers()
       : await this.usersService.getOnlineUsers();
 

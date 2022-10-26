@@ -9,7 +9,11 @@ const routes: Routes = [
   { path: '', redirectTo: 'chat', pathMatch: 'full' },
   { path: 'chat', component: ChatComponent, canActivate: [AuthGuard] },
   { path: 'auth/login', component: AuthComponent, canActivate: [UnauthGuard] },
-  { path: 'auth/sign-up', component: AuthComponent, canActivate: [UnauthGuard] },
+  {
+    path: 'auth/sign-up',
+    component: AuthComponent,
+    canActivate: [UnauthGuard],
+  },
 ];
 
 @NgModule({

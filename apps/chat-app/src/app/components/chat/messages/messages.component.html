@@ -1,8 +1,8 @@
-<div class="container">
+<div class="container" (click)="closeDrawerEmit()">
   <div class="messages" pinScroll>
     <div
       *ngFor="let message of messsages$ | async"
-      [ngStyle]="{ 'background-color': getUserColor(message.user.id)}"
+      [ngStyle]="{ 'background-color': getUserColor(message.user.id) }"
       [ngClass]="
         authUser?.id === message.user.id ? 'own-message message' : 'message'
       "
@@ -31,9 +31,9 @@
         placeholder="Type a message..."
         formControlName="messageText"
       ></textarea>
-      <button [disabled]="!form.valid" type="submit">
-        <mat-icon>send</mat-icon>
-      </button>
     </mat-form-field>
+    <button type="submit">
+      <mat-icon>send</mat-icon>
+    </button>
   </form>
 </div>

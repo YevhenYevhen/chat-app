@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { takeUntil } from 'rxjs';
 import { UiComponent } from '../../../abstract/ui-component/ui-component.component';
@@ -15,6 +21,8 @@ import { IUser } from '../../../models/user.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MessagesComponent extends UiComponent implements OnInit {
+  @Output() closeDrawerEvent = new EventEmitter<string>();
+
   public messsages$ = this.messagesStore.messages$;
   public users!: IUser[];
   public authUser = this.authUserStore.authUser$.getValue();
@@ -25,7 +33,7 @@ export class MessagesComponent extends UiComponent implements OnInit {
     private messagesStore: MessagesStore,
     private authUserStore: AuthUserStore,
     private usersStore: UsersStore,
-    private fb: FormBuilder
+    private fb: FormBuilder,
   ) {
     super();
   }
@@ -69,5 +77,9 @@ export class MessagesComponent extends UiComponent implements OnInit {
 
   public getUserColor(id: string): string {
     return this.users.find((u) => u.id === id)?.color || 'black';
+  }
+
+  public closeDrawerEmit(): void {
+    this.closeDrawerEvent.emit();
   }
 }

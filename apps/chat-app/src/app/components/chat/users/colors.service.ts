@@ -4,7 +4,6 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class ColorsService {
-  constructor() {}
   private colors = [
     '#084c9e',
     '#002880',
