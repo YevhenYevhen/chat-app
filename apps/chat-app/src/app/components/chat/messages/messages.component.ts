@@ -34,7 +34,9 @@ export class MessagesComponent extends UiComponent implements OnInit {
     this.getAllMessages();
     this.subscribeToNewMessages();
 
-    this.usersStore.users$.pipe(takeUntil(this.notifier$)).subscribe((users) => (this.users = users));
+    this.usersStore.users$
+      .pipe(takeUntil(this.notifier$))
+      .subscribe((users) => (this.users = users));
 
     this.messageForm = this.fb.group({
       messageText: ['', [Validators.required, Validators.maxLength(200)]],
@@ -47,17 +49,16 @@ export class MessagesComponent extends UiComponent implements OnInit {
     this.messagesService.sendMessage(
       this.messageForm.getRawValue().messageText
     );
-
-    this.messageForm.reset();
   }
 
   private subscribeToNewMessages(): void {
     this.messagesService
       .getNewMessage()
       .pipe(takeUntil(this.notifier$))
-      .subscribe((m) =>
-        this.messagesStore.messages$.next([...this.messagesStore.messages, m])
-      );
+      .subscribe((m) => {
+        this.messagesStore.messages$.next([...this.messagesStore.messages, m]);
+        this.messageForm.reset();
+      });
   }
 
   private async getAllMessages(): Promise<void> {
@@ -66,7 +67,7 @@ export class MessagesComponent extends UiComponent implements OnInit {
     );
   }
 
-  public getColor(id: string): string {
+  public getUserColor(id: string): string {
     return this.users.find((u) => u.id === id)?.color || 'black';
   }
 }

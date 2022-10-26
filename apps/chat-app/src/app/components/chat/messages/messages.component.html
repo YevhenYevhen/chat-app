@@ -2,7 +2,7 @@
   <div class="messages" pinScroll>
     <div
       *ngFor="let message of messsages$ | async"
-      [ngStyle]="{ 'background-color': getColor(message.user.id)}"
+      [ngStyle]="{ 'background-color': getUserColor(message.user.id)}"
       [ngClass]="
         authUser?.id === message.user.id ? 'own-message message' : 'message'
       "

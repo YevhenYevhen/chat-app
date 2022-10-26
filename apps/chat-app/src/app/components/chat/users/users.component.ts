@@ -1,9 +1,14 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { takeUntil } from 'rxjs';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { UiComponent } from '../../../abstract/ui-component/ui-component.component';
 import { AuthUserStore } from '../../../store/auth-user.store';
 import { UsersStore } from '../../../store/users.store';
-import { colors } from './users.colors';
+import { ColorsService } from './colors.service';
+import { UsersSubscriptionsService } from './users-subscriptions.service';
 import { UsersService } from './users.service';
 
 @Component({
@@ -12,90 +17,38 @@ import { UsersService } from './users.service';
   styleUrls: ['./users.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UsersComponent extends UiComponent implements OnInit {
-  public isAdmin!: boolean;
+export class UsersComponent extends UiComponent implements OnInit, OnDestroy {
+  public isAdmin = this.authUserStore.authUser$?.getValue()!.role === 'admin';
   public users$ = this.usersStore.users$;
 
   constructor(
-    private authUserStore: AuthUserStore,
+    public authUserStore: AuthUserStore,
     private usersStore: UsersStore,
-    private usersService: UsersService
+    private usersService: UsersService,
+    private usersSubscriptions: UsersSubscriptionsService,
+    private colorsService: ColorsService
   ) {
     super();
   }
 
   ngOnInit(): void {
-    if (this.authUserStore.authUser$ !== null) {
-      this.isAdmin = this.authUserStore.authUser$.getValue()!.role === 'admin';
-    }
-
     this.loadUsers();
-
-    this.usersService
-      .userMuted()
-      .pipe(takeUntil(this.notifier$))
-      .subscribe((id) => {
-        const users = this.usersStore.users$
-          .getValue()
-          .map((u) => (u.id === id ? { ...u, muted: true } : u));
-
-        this.usersStore.users$.next(users);
-      });
-
-    this.usersService
-      .userUnmuted()
-      .pipe(takeUntil(this.notifier$))
-      .subscribe((id) => {
-        const users = this.usersStore.users$
-          .getValue()
-          .map((u) => (u.id === id ? { ...u, muted: false } : u));
-
-        this.usersStore.users$.next(users);
-      });
-
-    this.usersService
-      .userBanned()
-      .pipe(takeUntil(this.notifier$))
-      .subscribe((id) => {
-        const users = this.usersStore.users$
-          .getValue()
-          .map((u) => (u.id === id ? { ...u, banned: true } : u));
-
-        this.usersStore.users$.next(users);
-      });
-
-    this.usersService
-      .userUnbanned()
-      .pipe(takeUntil(this.notifier$))
-      .subscribe((id) => {
-        const users = this.usersStore.users$
-          .getValue()
-          .map((u) => (u.id === id ? { ...u, banned: false } : u));
-
-        this.usersStore.users$.next(users);
-      });
+    this.usersSubscriptions.subscribe(this.notifier$);
   }
 
-  private loadUsers(): void {
-    if (this.isAdmin) {
-      this.usersService
-        .getAllUsers()
-        .pipe(takeUntil(this.notifier$))
-        .subscribe((users) => {
-          this.usersStore.users$.next(
-            users.map((u) => ({ ...u, color: this.getColor() }))
-          );
-        });
-    } else {
-      this.usersService
-        .getOnlineUsers()
-        .pipe(takeUntil(this.notifier$))
-        .subscribe((users) =>
-          this.usersStore.users$.next(
-            users.map((u) => ({ ...u, color: this.getColor() }))
-          )
-        );
-    }
+  public override ngOnDestroy(): void {
+    super.ngOnDestroy();
+    this.usersService.disconnect();
+  }
+
+  private async loadUsers(): Promise<void> {
+    let users = this.isAdmin
+      ? await this.usersService.getAllUsers()
+      : await this.usersService.getOnlineUsers();
+
+    this.usersStore.users$.next(
+      users.map((u) => ({ ...u, color: this.colorsService.getColor() }))
+    );
   }
 
   public muteUser(id: string): void {
@@ -109,17 +62,13 @@ export class UsersComponent extends UiComponent implements OnInit {
   }
 
   public banUser(id: string): void {
-    if (!this.isAdmin) return;
+    if (!this.isAdmin || id === this.authUserStore.authUser$.getValue()?.id)
+      return;
     this.usersService.banUser(id);
   }
 
   public unbanUser(id: string): void {
     if (!this.isAdmin) return;
     this.usersService.unbanUser(id);
-  }
-
-  public getColor(): string {
-    const index = Math.floor(Math.random() * colors.length);
-    return colors[index];
   }
 }

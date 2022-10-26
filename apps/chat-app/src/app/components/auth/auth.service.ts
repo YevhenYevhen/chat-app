@@ -5,7 +5,6 @@ import { catchError, firstValueFrom, tap } from 'rxjs';
 import { IAuthUser } from '../../models/auth-user.model';
 import { IUserAuthData } from '../../models/user-auth-data.model';
 import { AuthUserStore } from '../../store/auth-user.store';
-import { Socket } from 'ngx-socket-io';
 
 @Injectable({
   providedIn: 'root',
@@ -41,6 +40,11 @@ export class AuthService {
     if (userData) {
       this.authUserStore.authUser$.next(JSON.parse(userData));
     }
+  }
+
+  public logout(): void {
+    localStorage.clear();
+    this.authUserStore.authUser$.next(null);
   }
 
   private handleError(error: HttpErrorResponse): Promise<never> {

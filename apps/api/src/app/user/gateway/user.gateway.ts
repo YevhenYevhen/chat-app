@@ -31,7 +31,7 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   private server: Server;
 
-  handleConnection(@ConnectedSocket() client: Socket) {
+  async handleConnection(@ConnectedSocket() client: Socket) {
     const currentUserToken = client.handshake.query.token as string;
     const currentUserId = this.getId(this.jwtService.decode(currentUserToken));
 
@@ -47,15 +47,27 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.sockets.push(client);
 
-    this.getOnlineUsers();
-    this.getAllUsers();
+    // this.getOnlineUsers();
+    // this.getAllUsers();
+    const connectedUser = await this.userService.findOneBy({
+      id: currentUserId,
+    });
+
+    this.server.emit('userConnected', connectedUser);
   }
 
-  handleDisconnect(@ConnectedSocket() client: Socket) {
+  async handleDisconnect(@ConnectedSocket() client: Socket) {
     this.sockets = this.sockets.filter((c) => c.id !== client.id);
+    const currentUserToken = client.handshake.query.token as string;
+    const currentUserId = this.getId(this.jwtService.decode(currentUserToken));
 
-    this.getOnlineUsers();
-    this.getAllUsers();
+    // this.getOnlineUsers();
+    // this.getAllUsers();
+    const disconnectedUser = await this.userService.findOneBy({
+      id: currentUserId,
+    });
+
+    this.server.emit('userDisconnected', disconnectedUser);
   }
 
   @SubscribeMessage('muteUser')
@@ -76,10 +88,17 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('banUser')
   @Roles('admin')
-  public async banUser(@MessageBody() id: string): Promise<void> {
+  public async banUser(
+    @MessageBody() id: string,
+    @ConnectedSocket() client: Socket
+  ): Promise<void> {
     await this.userService.update(id, { banned: true });
-
     this.server.emit('userBanned', id);
+
+    // this.handleDisconnect(client);
+
+    const disconnectedUser = await this.userService.findOneBy({ id });
+    this.server.emit('userDisconnected', disconnectedUser);
   }
 
   @SubscribeMessage('unbanUser')
@@ -125,5 +144,18 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!hasId(obj)) return null;
 
     return obj.id;
+  }
+
+  @Roles('admin')
+  @SubscribeMessage('disconnectUser')
+  public async disconnect(@MessageBody() id: string): Promise<void> {
+    this.sockets
+      .find(
+        (s) =>
+          this.getId(
+            this.jwtService.decode(s.handshake.query.token as string)
+          ) === id
+      )
+      .disconnect();
   }
 }

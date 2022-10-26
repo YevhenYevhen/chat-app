@@ -6,14 +6,24 @@
         ? 'user online'
         : 'user offline'
     "
-    [ngStyle]="{'background-color': user.color}"
+    [ngStyle]="{ 'background-color': user.color, 'border': (authUserStore.authUser$ | async)?.id === user.id ? '1px solid yellow' : '' }"
   >
-    <p>{{ user.username }}</p>
+    <p>
+      {{ user.username }}
+    </p>
     <div [ngStyle]="{ cursor: isAdmin ? 'pointer' : 'initial' }">
-      <mat-icon (click)="unmuteUser(user.id)" *ngIf="user.muted">volume_off</mat-icon>
-      <mat-icon (click)="muteUser(user.id)" *ngIf="!user.muted">volume_up</mat-icon>
-      <mat-icon (click)="banUser(user.id)" *ngIf="!user.banned">how_to_reg</mat-icon>
-      <mat-icon (click)="unbanUser(user.id)" *ngIf="user.banned">report_off</mat-icon>
+      <mat-icon (click)="unmuteUser(user.id)" *ngIf="user.muted"
+        >volume_off</mat-icon
+      >
+      <mat-icon (click)="muteUser(user.id)" *ngIf="!user.muted"
+        >volume_up</mat-icon
+      >
+      <mat-icon (click)="banUser(user.id)" *ngIf="!user.banned"
+        >how_to_reg</mat-icon
+      >
+      <mat-icon (click)="unbanUser(user.id)" *ngIf="user.banned"
+        >report_off</mat-icon
+      >
     </div>
   </div>
 </div>

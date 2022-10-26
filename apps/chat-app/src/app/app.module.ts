@@ -15,7 +15,7 @@ const config: SocketIoConfig = {
   url: 'http://localhost:3333',
   options: {
     transports: ['websocket', 'polling'],
-    autoConnect: false
+    autoConnect: false,
   },
 };
 

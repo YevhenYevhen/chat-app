@@ -11,6 +11,7 @@ import { MessagesStore } from '../../store/messages.store';
 import { ScrollDirective } from '../../directives/scroll.directive';
 import { UsersComponent } from './users/users.component';
 import { UsersService } from './users/users.service';
+import { ColorsService } from './users/colors.service';
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { UsersService } from './users/users.service';
   providers: [
     ChatService,
     UsersService,
+    ColorsService,
     MessagesService,
     SocketWithToken,
     MessagesStore,
