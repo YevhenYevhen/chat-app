@@ -20,6 +20,7 @@ import { hasId } from '../../shared/typeguards/has-id.type-guard';
 
 @WebSocketGateway({ cors: true })
 @UseGuards(WsAuthGuard)
+@UseFilters(new BaseWsExceptionFilter())
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private sockets: Socket[] = [];
   constructor(
@@ -51,7 +52,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.sockets = this.sockets.filter((c) => c.id !== client.id);
   }
 
-  @UseFilters(new BaseWsExceptionFilter())
   @SubscribeMessage('sendMessage')
   public async handleMessage(
     @ConnectedSocket() client: Socket,
@@ -77,7 +77,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @UseFilters(new BaseWsExceptionFilter())
   @SubscribeMessage('getAllMessages')
   public async getAllMessages(): Promise<void> {
     const allMessages = await this.chatService.getAllMessages();
