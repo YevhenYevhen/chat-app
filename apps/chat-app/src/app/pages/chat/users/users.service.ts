@@ -63,7 +63,7 @@ export class UsersService {
     return firstValueFrom(this.socket.fromEvent<IUser[]>('allUsers'));
   }
 
-  public userConnected(): Observable<IUser> {
+  public userJoined(): Observable<IUser> {
     return this.socket.fromEvent<IUser>('userConnected');
   }
 
@@ -71,7 +71,7 @@ export class UsersService {
     this.socket.emit('disconnectUser', id);
   }
 
-  public userDisonnected(): Observable<IUser> {
+  public userLeft(): Observable<IUser> {
     return this.socket.fromEvent<IUser>('userDisconnected');
   }
 }

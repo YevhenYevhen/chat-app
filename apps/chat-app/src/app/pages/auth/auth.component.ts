@@ -42,7 +42,6 @@ export class AuthComponent extends UiComponent implements OnInit, OnDestroy {
     try {
       if (this.isSignUpMode) {
         await this.authService.signUp(this.authForm.getRawValue());
-        debugger
         this.router.navigateByUrl('/auth/login');
       } else {
         await this.authService.login(this.authForm.getRawValue());

@@ -13,6 +13,7 @@ import { AuthUserStore } from '../../../store/auth-user.store';
 import { MessagesService } from './messages.service';
 import { UsersStore } from '../../../store/users.store';
 import { IUser } from '../../../models/user.model';
+import { UsersService } from '../users/users.service';
 
 @Component({
   selector: 'chat-app-messages',
@@ -34,6 +35,7 @@ export class MessagesComponent extends UiComponent implements OnInit {
     private authUserStore: AuthUserStore,
     private usersStore: UsersStore,
     private fb: FormBuilder,
+    private usersService: UsersService
   ) {
     super();
   }
@@ -45,6 +47,11 @@ export class MessagesComponent extends UiComponent implements OnInit {
     this.usersStore.users$
       .pipe(takeUntil(this.notifier$))
       .subscribe((users) => (this.users = users));
+
+    this.usersService
+      .userJoined()
+      .pipe(takeUntil(this.notifier$))
+      .subscribe(() => this.getAllMessages());
 
     this.messageForm = this.fb.group({
       messageText: ['', [Validators.required, Validators.maxLength(200)]],
@@ -76,7 +83,7 @@ export class MessagesComponent extends UiComponent implements OnInit {
   }
 
   public getUserColor(id: string): string {
-    return this.users.find((u) => u.id === id)?.color || 'black';
+    return this.users.find((u) => u.id === id)?.color || 'blue';
   }
 
   public closeDrawerEmit(): void {

@@ -20,15 +20,15 @@ export class UsersSubscriptionsService {
     private router: Router,
     private colorsService: ColorsService
   ) {}
-  private isAdmin = this.authUserStore.authUser$?.getValue()!.role === 'admin';
+  private isAdmin = this.authUserStore.authUser$?.getValue()?.role === 'admin';
   private users$ = this.usersStore.users$;
   private get users(): IUser[] {
     return this.users$.getValue();
   }
 
-  private disconnectionSubcription(notifier$: Subject<void>): void {
+  private userLeftSubcription(notifier$: Subject<void>): void {
     this.usersService
-      .userDisonnected()
+      .userLeft()
       .pipe(takeUntil(notifier$))
       .subscribe((user) => {
         let users;
@@ -45,24 +45,31 @@ export class UsersSubscriptionsService {
       });
   }
 
-  private connectionSubcription(notifier$: Subject<void>): void {
+  private userJoinedSubcription(notifier$: Subject<void>): void {
     this.usersService
-      .userConnected()
+      .userJoined()
       .pipe(takeUntil(notifier$))
       .subscribe((user) => {
         const userExists = !!this.users.find((u) => u.id === user.id);
 
         if (this.isAdmin && userExists) {
-          this.users$.next(this.users.map((u) => (u.id === user.id ? { ...u, online: true } : u)));
+          this.users$.next(
+            this.users.map((u) =>
+              u.id === user.id ? { ...u, online: true } : u
+            )
+          );
           return;
         }
 
         if (this.isAdmin && !userExists) {
-          this.users$.next([{ ...user, color: this.colorsService.getColor(), online: true }, ...this.users ]);
+          this.users$.next([
+            { ...user, color: this.colorsService.getColor(), online: true },
+            ...this.users,
+          ]);
           return;
         }
 
-        this.users$.next([user, ...this.users]);
+        this.users$.next([{...user, color: this.colorsService.getColor()}, ...this.users]);
       });
   }
 
@@ -95,16 +102,14 @@ export class UsersSubscriptionsService {
       .subscribe((id) => {
         if (this.isAdmin) {
           const users = this.users.map((u) =>
-              u.id === id ? { ...u, banned: true, online: false } : u
-            );
+            u.id === id ? { ...u, banned: true, online: false } : u
+          );
 
           this.users$.next(users);
         }
 
         if (!this.isAdmin) {
-          this.users$.next(
-            this.users.filter((u) => u.id !== id)
-          );
+          this.users$.next(this.users.filter((u) => u.id !== id));
         }
 
         if (id === this.authUserStore.authUser$.getValue()?.id) {
@@ -126,14 +131,25 @@ export class UsersSubscriptionsService {
       });
   }
 
+  private disconnectedSubscription(notifier$: Subject<void>): void {
+    this.usersService
+      .disconnected()
+      .pipe(takeUntil(notifier$))
+      .subscribe(() => {
+          this.authService.logout();
+          this.router.navigateByUrl('/auth/login');
+      });
+  }
+
   public subscribe(notifier$: Subject<void>): void {
     this.usersService.connect();
 
-    this.disconnectionSubcription(notifier$);
-    this.connectionSubcription(notifier$);
+    this.userLeftSubcription(notifier$);
+    this.userJoinedSubcription(notifier$);
     this.muteSubcription(notifier$);
     this.unmuteSubcription(notifier$);
     this.banSubcription(notifier$);
     this.unbanSubcription(notifier$);
+    this.disconnectedSubscription(notifier$);
   }
 }
