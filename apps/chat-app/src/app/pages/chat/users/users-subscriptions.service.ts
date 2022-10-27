@@ -69,7 +69,10 @@ export class UsersSubscriptionsService {
           return;
         }
 
-        this.users$.next([{...user, color: this.colorsService.getColor()}, ...this.users]);
+        this.users$.next([
+          { ...user, color: this.colorsService.getColor() },
+          ...this.users,
+        ]);
       });
   }
 
@@ -136,8 +139,9 @@ export class UsersSubscriptionsService {
       .disconnected()
       .pipe(takeUntil(notifier$))
       .subscribe(() => {
-          this.authService.logout();
-          this.router.navigateByUrl('/auth/login');
+        this.authService.logout();
+        this.router.navigateByUrl('/auth/login');
+        window.location.reload();
       });
   }
 

@@ -8,10 +8,12 @@ import {
   ViewChild,
 } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
+import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { UiComponent } from '../../../abstract/ui-component/ui-component.component';
 import { AuthUserStore } from '../../../store/auth-user.store';
 import { UsersStore } from '../../../store/users.store';
+import { AuthService } from '../../auth/auth.service';
 import { ColorsService } from './colors.service';
 import { UsersSubscriptionsService } from './users-subscriptions.service';
 import { UsersService } from './users.service';
@@ -34,7 +36,9 @@ export class UsersComponent extends UiComponent implements OnInit, OnDestroy {
     private usersService: UsersService,
     private usersSubscriptions: UsersSubscriptionsService,
     private colorsService: ColorsService,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private authService: AuthService,
+    private router: Router
   ) {
     super();
   }
@@ -82,5 +86,11 @@ export class UsersComponent extends UiComponent implements OnInit, OnDestroy {
   public unbanUser(id: string): void {
     if (!this.isAdmin) return;
     this.usersService.unbanUser(id);
+  }
+
+  public logOut(): void {
+    this.authService.logout();
+    this.router.navigateByUrl('/auth/login');
+    window.location.reload();
   }
 }

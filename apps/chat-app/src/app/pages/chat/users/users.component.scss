@@ -47,12 +47,20 @@
   height: 100vh;
 }
 
-.drawer-button {
+.drawer-button,
+.logout-button {
   position: absolute;
   top: 20px;
-  right: 20px;
   background-color: rgba(42, 46, 72, 0.54);
   color: white;
+}
+
+.logout-button {
+  right: 20px;
+}
+
+.drawer-button {
+  right: 110px;
 }
 
 .mobile {
