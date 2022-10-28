@@ -41,6 +41,10 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
 
       if (savedId && currentUserId && savedId === currentUserId) {
+        this.server.emit('anotherClientConnection', {
+          userId: currentUserId,
+          clientId: s.id,
+        });
         s.disconnect();
       }
     });
@@ -148,7 +152,10 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
           ) === id
       )
       ?.disconnect();
-    
-      this.server.emit('userDisconnected', await this.userService.findOneBy({id}));
+
+    this.server.emit(
+      'userDisconnected',
+      await this.userService.findOneBy({ id })
+    );
   }
 }

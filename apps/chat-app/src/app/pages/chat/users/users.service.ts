@@ -7,7 +7,11 @@ import { SocketWithToken } from '../../../shared/socket-with-token';
   providedIn: 'root',
 })
 export class UsersService {
-  constructor(private socket: SocketWithToken) {}
+  public socketId!: string;
+  
+  constructor(private socket: SocketWithToken) {
+    this.socket.on('connect', () => (this.socketId = this.socket.ioSocket.id));
+  }
 
   public connect(): void {
     this.socket.connect();
@@ -73,5 +77,14 @@ export class UsersService {
 
   public userLeft(): Observable<IUser> {
     return this.socket.fromEvent<IUser>('userDisconnected');
+  }
+
+  public anotherClientConnection(): Observable<{
+    userId: string;
+    clientId: string;
+  }> {
+    return this.socket.fromEvent<{ userId: string; clientId: string }>(
+      'anotherClientConnection'
+    );
   }
 }

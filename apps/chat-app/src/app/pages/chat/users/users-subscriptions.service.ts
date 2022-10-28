@@ -86,9 +86,7 @@ export class UsersSubscriptionsService {
         const user = this.users.find((u) => u.id === id);
 
         if (user?.id === this.authUserStore.id) {
-          this.snackBar.open(`You've been muted`, undefined, {
-            duration: 3000,
-          });
+          this.openSnackBar(`You've been muted`);
         }
 
         this.users$.next(
@@ -105,9 +103,7 @@ export class UsersSubscriptionsService {
         const user = this.users.find((u) => u.id === id);
 
         if (user?.id === this.authUserStore.id) {
-          this.snackBar.open(`You've been unmuted`, undefined, {
-            duration: 3000,
-          });
+          this.openSnackBar(`You've been unmuted`);
         }
 
         this.users$.next(
@@ -129,7 +125,7 @@ export class UsersSubscriptionsService {
             ? 'You have been banned'
             : `${user?.username} has been banned`;
 
-          this.snackBar.open(message, undefined, { duration: 3000 });
+          this.openSnackBar(message);
         }
 
         if (this.isAdmin) {
@@ -174,6 +170,24 @@ export class UsersSubscriptionsService {
       });
   }
 
+  private anotherClientConnectionSubscription(notifier$: Subject<void>): void {
+    this.usersService
+      .anotherClientConnection()
+      .pipe(takeUntil(notifier$))
+      .subscribe(({ userId, clientId }) => {
+        if (
+          this.authUserStore.id === userId &&
+          this.usersService.socketId === clientId
+        ) {
+          this.openSnackBar(`You've logged in with a different device`);
+        }
+      });
+  }
+
+  private openSnackBar(message: string): void {
+    this.snackBar.open(message, undefined, { duration: 3000 });
+  }
+
   public subscribe(notifier$: Subject<void>): void {
     this.usersService.connect();
 
@@ -184,5 +198,6 @@ export class UsersSubscriptionsService {
     this.banSubcription(notifier$);
     this.unbanSubcription(notifier$);
     this.disconnectedSubscription(notifier$);
+    this.anotherClientConnectionSubscription(notifier$);
   }
 }
