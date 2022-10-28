@@ -147,7 +147,7 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
             this.jwtService.decode(s.handshake.query.token as string)
           ) === id
       )
-      .disconnect();
+      ?.disconnect();
     
       this.server.emit('userDisconnected', await this.userService.findOneBy({id}));
   }

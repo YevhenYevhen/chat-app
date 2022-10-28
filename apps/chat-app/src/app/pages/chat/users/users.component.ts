@@ -26,6 +26,7 @@ import { UsersService } from './users.service';
 })
 export class UsersComponent extends UiComponent implements OnInit, OnDestroy {
   public isAdmin = this.authUserStore.authUser$?.getValue()?.role === 'admin';
+  public authUserId = this.authUserStore.authUser$.getValue()?.id;
   public users$ = this.usersStore.users$;
   @ViewChild('drawer') public drawer!: MatSidenav;
   @Input() closeDrawer$!: Subject<void>;
@@ -68,23 +69,18 @@ export class UsersComponent extends UiComponent implements OnInit, OnDestroy {
   }
 
   public muteUser(id: string): void {
-    if (!this.isAdmin) return;
     this.usersService.mute(id);
   }
 
   public async unmuteUser(id: string): Promise<void> {
-    if (!this.isAdmin) return;
     this.usersService.unmute(id);
   }
 
   public banUser(id: string): void {
-    if (!this.isAdmin || id === this.authUserStore.authUser$.getValue()?.id)
-      return;
     this.usersService.banUser(id);
   }
 
   public unbanUser(id: string): void {
-    if (!this.isAdmin) return;
     this.usersService.unbanUser(id);
   }
 
