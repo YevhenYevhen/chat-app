@@ -25,8 +25,8 @@ import { UsersService } from './users.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UsersComponent extends UiComponent implements OnInit, OnDestroy {
-  public isAdmin = this.authUserStore.authUser$?.getValue()?.role === 'admin';
-  public authUserId = this.authUserStore.authUser$.getValue()?.id;
+  public isAdmin = this.authUserStore.authUser?.role === 'admin';
+  public authUserId = this.authUserStore.id;
   public users$ = this.usersStore.users$;
   @ViewChild('drawer') public drawer!: MatSidenav;
   @Input() closeDrawer$!: Subject<void>;

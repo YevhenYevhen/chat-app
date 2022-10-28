@@ -27,7 +27,7 @@ export class MessagesComponent extends UiComponent implements OnInit {
 
   public messsages$ = this.messagesStore.messages$;
   public users!: IUser[];
-  public authUser = this.authUserStore.authUser$.getValue();
+  public authUser = this.authUserStore.authUser;
   public messageForm!: FormGroup;
 
   constructor(

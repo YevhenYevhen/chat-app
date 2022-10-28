@@ -22,7 +22,7 @@ export class UsersSubscriptionsService {
     private colorsService: ColorsService,
     private snackBar: MatSnackBar
   ) {}
-  private isAdmin = this.authUserStore.authUser$?.getValue()?.role === 'admin';
+  private isAdmin = this.authUserStore.authUser?.role === 'admin';
   private users$ = this.usersStore.users$;
   private get users(): IUser[] {
     return this.users$.getValue();
@@ -83,6 +83,14 @@ export class UsersSubscriptionsService {
       .userMuted()
       .pipe(takeUntil(notifier$))
       .subscribe((id) => {
+        const user = this.users.find((u) => u.id === id);
+
+        if (user?.id === this.authUserStore.id) {
+          this.snackBar.open(`You've been muted`, undefined, {
+            duration: 3000,
+          });
+        }
+
         this.users$.next(
           this.users.map((u) => (u.id === id ? { ...u, muted: true } : u))
         );
@@ -94,6 +102,14 @@ export class UsersSubscriptionsService {
       .userUnmuted()
       .pipe(takeUntil(notifier$))
       .subscribe((id) => {
+        const user = this.users.find((u) => u.id === id);
+
+        if (user?.id === this.authUserStore.id) {
+          this.snackBar.open(`You've been unmuted`, undefined, {
+            duration: 3000,
+          });
+        }
+
         this.users$.next(
           this.users.map((u) => (u.id === id ? { ...u, muted: false } : u))
         );
@@ -106,10 +122,15 @@ export class UsersSubscriptionsService {
       .pipe(takeUntil(notifier$))
       .subscribe((id) => {
         const user = this.users.find((u) => u.id === id);
+        const isCurrentUser = user?.id === this.authUserStore.id;
 
-        this.snackBar.open(`${user?.username} has been banned`, undefined, {
-          duration: 3000,
-        });
+        if (user) {
+          const message = isCurrentUser
+            ? 'You have been banned'
+            : `${user?.username} has been banned`;
+
+          this.snackBar.open(message, undefined, { duration: 3000 });
+        }
 
         if (this.isAdmin) {
           const users = this.users.map((u) =>
@@ -123,7 +144,7 @@ export class UsersSubscriptionsService {
           this.users$.next(this.users.filter((u) => u.id !== id));
         }
 
-        if (id === this.authUserStore.authUser$.getValue()?.id) {
+        if (isCurrentUser) {
           this.authService.logout();
           this.router.navigateByUrl('/auth/login');
           this.usersService.disconnectUser(id);
