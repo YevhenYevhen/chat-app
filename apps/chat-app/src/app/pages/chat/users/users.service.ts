@@ -8,7 +8,7 @@ import { SocketWithToken } from '../../../shared/socket-with-token';
 })
 export class UsersService {
   public socketId!: string;
-  
+
   constructor(private socket: SocketWithToken) {
     this.socket.on('connect', () => (this.socketId = this.socket.ioSocket.id));
   }

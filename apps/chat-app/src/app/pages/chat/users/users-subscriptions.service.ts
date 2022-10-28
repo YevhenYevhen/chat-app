@@ -166,7 +166,6 @@ export class UsersSubscriptionsService {
       .subscribe(() => {
         this.authService.logout();
         this.router.navigateByUrl('/auth/login');
-        window.location.reload();
       });
   }
 

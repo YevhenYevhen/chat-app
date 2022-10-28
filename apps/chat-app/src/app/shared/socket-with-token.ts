@@ -16,4 +16,14 @@ export class SocketWithToken extends Socket {
       },
     });
   }
+
+  public newConnection(): void {
+    this.ioSocket.io.opts.query.token = localStorage.getItem('token');
+    super.connect();
+  }
+
+  public destroyConnection(): void {
+    this.ioSocket.io.opts.query.token = null;
+    this.disconnect();
+  }
 }

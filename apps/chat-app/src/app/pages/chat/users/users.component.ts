@@ -87,6 +87,5 @@ export class UsersComponent extends UiComponent implements OnInit, OnDestroy {
   public logOut(): void {
     this.authService.logout();
     this.router.navigateByUrl('/auth/login');
-    window.location.reload();
   }
 }
