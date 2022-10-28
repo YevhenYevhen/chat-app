@@ -7,9 +7,7 @@ import { SocketWithToken } from '../../../shared/socket-with-token';
   providedIn: 'root',
 })
 export class MessagesService {
-  constructor(
-    private socket: SocketWithToken,
-  ) {}
+  constructor(private socket: SocketWithToken) {}
   public sendMessage(message: string): void {
     this.socket.emit('sendMessage', { message });
   }

@@ -14,6 +14,7 @@ import { MessagesService } from './messages.service';
 import { UsersStore } from '../../../store/users.store';
 import { IUser } from '../../../models/user.model';
 import { UsersService } from '../users/users.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'chat-app-messages',
@@ -35,7 +36,8 @@ export class MessagesComponent extends UiComponent implements OnInit {
     private authUserStore: AuthUserStore,
     private usersStore: UsersStore,
     private fb: FormBuilder,
-    private usersService: UsersService
+    private usersService: UsersService,
+    private snackbar: MatSnackBar
   ) {
     super();
   }
@@ -53,12 +55,23 @@ export class MessagesComponent extends UiComponent implements OnInit {
       .pipe(takeUntil(this.notifier$))
       .subscribe(() => this.getAllMessages());
 
-    this.messageForm = this.fb.group({
-      messageText: ['', [Validators.required, Validators.maxLength(200)]],
-    });
+    this.messageForm = this.fb.group(
+      {
+        messageText: ['', [Validators.required, Validators.maxLength(200)]],
+      },
+      { updateOn: 'change' }
+    );
   }
 
   public onSubmit(): void {
+    if (this.messageForm.controls['messageText']?.errors?.['maxlength']) {
+      this.snackbar.open(
+        'Messages cannot be longer than 200 characters',
+        undefined,
+        { duration: 3000 }
+      );
+    }
+
     if (this.messageForm.invalid) return;
 
     this.messagesService.sendMessage(
