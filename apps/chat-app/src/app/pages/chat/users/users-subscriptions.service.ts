@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { IUser } from '../../../models/user.model';
@@ -18,7 +19,8 @@ export class UsersSubscriptionsService {
     private authUserStore: AuthUserStore,
     private authService: AuthService,
     private router: Router,
-    private colorsService: ColorsService
+    private colorsService: ColorsService,
+    private snackBar: MatSnackBar
   ) {}
   private isAdmin = this.authUserStore.authUser$?.getValue()?.role === 'admin';
   private users$ = this.usersStore.users$;
@@ -103,6 +105,12 @@ export class UsersSubscriptionsService {
       .userBanned()
       .pipe(takeUntil(notifier$))
       .subscribe((id) => {
+        const user = this.users.find((u) => u.id === id);
+
+        this.snackBar.open(`${user?.username} has been banned`, undefined, {
+          duration: 3000,
+        });
+
         if (this.isAdmin) {
           const users = this.users.map((u) =>
             u.id === id ? { ...u, banned: true, online: false } : u
